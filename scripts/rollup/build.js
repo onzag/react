@@ -100,8 +100,8 @@ const errorCodeOpts = {
 
 const closureOptions = {
   compilation_level: 'SIMPLE',
-  language_in: 'ECMASCRIPT_2015',
-  language_out: 'ECMASCRIPT5_STRICT',
+  language_in: 'ECMASCRIPT_2017',
+  language_out: 'ECMASCRIPT_2017',
   env: 'CUSTOM',
   warning_level: 'QUIET',
   apply_input_source_maps: false,

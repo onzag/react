@@ -28,9 +28,9 @@ class ReactMarkupReadableStream extends Readable {
     callback(err);
   }
 
-  _read(size) {
+  async _read(size) {
     try {
-      this.push(this.partialRenderer.read(size));
+      this.push(await this.partialRenderer.read(size));
     } catch (err) {
       this.destroy(err);
     }

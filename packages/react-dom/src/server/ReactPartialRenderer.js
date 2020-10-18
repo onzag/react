@@ -411,7 +411,7 @@ function validateRenderResult(child, type) {
   }
 }
 
-function resolve(
+async function resolve(
   child: mixed,
   context: Object,
   threadID: ThreadID,
@@ -429,11 +429,11 @@ function resolve(
     if (typeof Component !== 'function') {
       break;
     }
-    processChild(element, Component);
+    await processChild(element, Component);
   }
 
   // Extra closure so queue and replace can be captured properly
-  function processChild(element, Component) {
+  async function processChild(element, Component) {
     const isClass = shouldConstruct(Component);
     const publicContext = processContext(Component, context, threadID, isClass);
 
@@ -648,6 +648,10 @@ function resolve(
         queue = null;
       }
     }
+
+    if (inst.beforeSSRRender) {
+      await inst.beforeSSRRender();
+    }
     child = inst.render();
 
     if (__DEV__) {
@@ -848,7 +852,7 @@ class ReactDOMServerRenderer {
     }
   }
 
-  read(bytes: number): string | null {
+  async read(bytes: number): string | null {
     if (this.exhausted) {
       return null;
     }
@@ -919,7 +923,7 @@ class ReactDOMServerRenderer {
           ((frame: any): FrameDev).debugElementStack.length = 0;
         }
         try {
-          outBuffer += this.render(child, frame.context, frame.domNamespace);
+          outBuffer += await this.render(child, frame.context, frame.domNamespace);
         } catch (err) {
           if (err != null && typeof err.then === 'function') {
             if (enableSuspenseServerRenderer) {
@@ -956,7 +960,7 @@ class ReactDOMServerRenderer {
     }
   }
 
-  render(
+  async render(
     child: ReactNode | null,
     context: Object,
     parentNamespace: string,
@@ -976,7 +980,7 @@ class ReactDOMServerRenderer {
       return escapeTextForBrowser(text);
     } else {
       let nextChild;
-      ({child: nextChild, context} = resolve(child, context, this.threadID));
+      ({child: nextChild, context} = await resolve(child, context, this.threadID));
       if (nextChild === null || nextChild === false) {
         return '';
       } else if (!React.isValidElement(nextChild)) {
